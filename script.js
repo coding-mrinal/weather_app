@@ -1,7 +1,4 @@
-// Replace with your actual API key from OpenWeatherMap
 const apiKey = "9955cf7c55c3c0d332bfe7865408c001";
-
-// DOM elements
 const cityInput = document.getElementById('cityInput');
 const weatherResult = document.getElementById('weatherResult');
 const clearSearchBtn = document.getElementById('clearSearch');
@@ -10,64 +7,48 @@ const themeIcon = document.getElementById('theme-icon');
 const recentSearchesSection = document.getElementById('recentSearches');
 const recentList = document.getElementById('recentList');
 
-// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
     setBackgroundByTime();
     setupEventListeners();
     loadThemePreference();
     loadRecentSearches();
-    
-    // Update background every 30 minutes to reflect time changes
+
     setInterval(setBackgroundByTime, 30 * 60 * 1000);
 });
 
 function setupEventListeners() {
-    // Clear search input
     clearSearchBtn.addEventListener('click', () => {
         cityInput.value = '';
         cityInput.focus();
     });
     
-    // Theme toggle
     themeToggle.addEventListener('click', toggleTheme);
-    
-    // Enter key in search input
+
     cityInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             getWeather();
         }
     });
 }
-
-// Set background based on time of day
 function setBackgroundByTime() {
     const hour = new Date().getHours();
     const body = document.body;
-    
-    // Remove existing time-based classes
     body.classList.remove('day', 'night', 'sunset', 'sunrise');
     
     if (hour >= 5 && hour < 7) {
-        // Sunrise
         body.classList.add('sunrise');
     } else if (hour >= 7 && hour < 17) {
-        // Day
         body.classList.add('day');
     } else if (hour >= 17 && hour < 20) {
-        // Sunset/Evening
         body.classList.add('sunset');
     } else {
-        // Night
         body.classList.add('night');
     }
 }
-
-// Toggle between light and dark theme
 function toggleTheme() {
     document.body.classList.toggle('dark-theme');
     themeToggle.classList.add('active');
-    
-    // Update icon
+
     if (document.body.classList.contains('dark-theme')) {
         themeIcon.className = 'fas fa-sun';
         localStorage.setItem('theme', 'dark');
@@ -75,14 +56,11 @@ function toggleTheme() {
         themeIcon.className = 'fas fa-moon';
         localStorage.setItem('theme', 'light');
     }
-    
-    // Remove active class after animation completes
     setTimeout(() => {
         themeToggle.classList.remove('active');
     }, 500);
 }
 
-// Load theme preference from localStorage
 function loadThemePreference() {
     const theme = localStorage.getItem('theme');
     if (theme === 'dark') {
@@ -90,8 +68,6 @@ function loadThemePreference() {
         themeIcon.className = 'fas fa-sun';
     }
 }
-
-// Get weather data for the entered city
 async function getWeather() {
     const city = cityInput.value.trim();
     
@@ -103,7 +79,6 @@ async function getWeather() {
     showLoading();
     
     try {
-        // Get current weather
         const currentResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
         
         if (!currentResponse.ok) {
@@ -111,8 +86,7 @@ async function getWeather() {
         }
         
         const currentData = await currentResponse.json();
-        
-        // Get 5-day forecast
+
         const forecastResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`);
         const forecastData = forecastResponse.ok ? await forecastResponse.json() : null;
         
@@ -124,7 +98,6 @@ async function getWeather() {
     }
 }
 
-// Get weather for user's current location
 function getCurrentLocationWeather() {
     if (navigator.geolocation) {
         showLoading();
@@ -133,8 +106,7 @@ function getCurrentLocationWeather() {
             async (position) => {
                 try {
                     const { latitude, longitude } = position.coords;
-                    
-                    // Get current weather
+
                     const currentResponse = await fetch(
                         `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
                     );
@@ -144,8 +116,7 @@ function getCurrentLocationWeather() {
                     }
                     
                     const currentData = await currentResponse.json();
-                    
-                    // Get 5-day forecast
+
                     const forecastResponse = await fetch(
                         `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
                     );
@@ -166,20 +137,14 @@ function getCurrentLocationWeather() {
         showError("Geolocation is not supported by your browser");
     }
 }
-
-// Display weather data
 function displayWeather(data, forecastData = null) {
-    // Remove existing weather condition classes
     document.body.className = document.body.className.replace(/weather-condition-\w+/g, '');
-    
-    // Add new weather condition class
+
     const weatherCondition = data.weather[0].main.toLowerCase();
     document.body.classList.add(`weather-condition-${weatherCondition}`);
-    
-    // Ensure time-based class is maintained
+
     setBackgroundByTime();
-    
-    // Create weather HTML
+
     let weatherHTML = `
         <div class="weather-info">
             <h2>${data.name}, ${data.sys.country}</h2>
@@ -197,23 +162,15 @@ function displayWeather(data, forecastData = null) {
             </div>
         </div>
     `;
-    
-    // Add 5-day forecast if available
     if (forecastData && forecastData.list) {
         weatherHTML += generateForecastHTML(forecastData);
     }
     
     weatherResult.innerHTML = weatherHTML;
     hideLoading();
-    
-    // Add animated background elements based on weather
     updateAnimatedBackground(weatherCondition);
-    
-    // Update background gradient based on weather and time
     updateWeatherBackground(weatherCondition, data);
 }
-
-// Generate 5-day forecast HTML
 function generateForecastHTML(forecastData) {
     const dailyForecasts = processForecastData(forecastData.list);
     
@@ -245,7 +202,6 @@ function generateForecastHTML(forecastData) {
     return forecastHTML;
 }
 
-// Process forecast data to get daily forecasts
 function processForecastData(forecastList) {
     const dailyData = {};
     const today = new Date().toDateString();
@@ -253,8 +209,7 @@ function processForecastData(forecastList) {
     forecastList.forEach(item => {
         const date = new Date(item.dt * 1000);
         const dateString = date.toDateString();
-        
-        // Skip today's data
+
         if (dateString === today) return;
         
         if (!dailyData[dateString]) {
@@ -266,23 +221,16 @@ function processForecastData(forecastList) {
             };
         }
     });
-    
-    // Return first 5 days
     return Object.values(dailyData).slice(0, 5);
 }
 
-// Update weather-specific background styling
 function updateWeatherBackground(weatherCondition, data) {
     const body = document.body;
-    
-    // Add additional styling based on weather intensity
     if (data.weather[0].description.includes('heavy')) {
         body.classList.add('weather-intense');
     } else {
         body.classList.remove('weather-intense');
     }
-    
-    // Add temperature-based styling
     const temp = data.main.temp;
     body.classList.remove('temp-hot', 'temp-warm', 'temp-cool', 'temp-cold');
     
@@ -296,15 +244,10 @@ function updateWeatherBackground(weatherCondition, data) {
         body.classList.add('temp-cold');
     }
 }
-
-// Update animated background based on weather condition
 function updateAnimatedBackground(weatherCondition) {
     const animatedBg = document.querySelector('.animated-bg') || createAnimatedBg();
-    
-    // Clear existing particles
+
     animatedBg.innerHTML = '';
-    
-    // Add particles based on weather condition
     switch(weatherCondition) {
         case 'rain':
             for (let i = 0; i < 8; i++) {
@@ -323,7 +266,6 @@ function updateAnimatedBackground(weatherCondition) {
             break;
         case 'clear':
             createParticle(animatedBg, 'sun');
-            // Add some light clouds for clear weather
             for (let i = 0; i < 2; i++) {
                 createParticle(animatedBg, 'cloud');
             }
@@ -349,7 +291,6 @@ function updateAnimatedBackground(weatherCondition) {
             }
             break;
         default:
-            // Default particles
             for (let i = 0; i < 2; i++) {
                 createParticle(animatedBg, 'cloud');
             }
@@ -357,7 +298,6 @@ function updateAnimatedBackground(weatherCondition) {
     }
 }
 
-// Create animated background container if it doesn't exist
 function createAnimatedBg() {
     const animatedBg = document.createElement('div');
     animatedBg.className = 'animated-bg';
@@ -365,16 +305,13 @@ function createAnimatedBg() {
     return animatedBg;
 }
 
-// Create a weather particle
 function createParticle(container, type) {
     const particle = document.createElement('div');
     particle.className = `weather-particle ${type}`;
-    
-    // Randomize position and animation properties
+
     particle.style.left = `${Math.random() * 100}%`;
     particle.style.animationDelay = `-${Math.random() * 10}s`;
-    
-    // Set specific properties based on particle type
+
     switch(type) {
         case 'rain':
             particle.style.animationDuration = `${1 + Math.random() * 2}s`;
@@ -402,7 +339,6 @@ function createParticle(container, type) {
         case 'mist':
             particle.style.animationDuration = `${15 + Math.random() * 15}s`;
             particle.style.opacity = `${0.2 + Math.random() * 0.3}`;
-            // Create mist-like appearance
             particle.style.borderRadius = '50%';
             particle.style.background = 'rgba(255, 255, 255, 0.4)';
             particle.style.filter = 'blur(2px)';
@@ -418,7 +354,6 @@ function createParticle(container, type) {
     container.appendChild(particle);
 }
 
-// Show loading animation
 function showLoading() {
     weatherResult.innerHTML = `
         <div class="loading">
@@ -430,7 +365,6 @@ function showLoading() {
     `;
 }
 
-// Hide loading animation
 function hideLoading() {
     const loading = weatherResult.querySelector('.loading');
     if (loading) {
@@ -438,11 +372,8 @@ function hideLoading() {
     }
 }
 
-// Show error message
 function showError(message) {
     let errorMessage = message;
-    
-    // Provide more user-friendly error messages
     if (message.includes('404')) {
         errorMessage = "City not found. Please check the spelling and try again.";
     } else if (message.includes('401')) {
@@ -467,7 +398,6 @@ function showError(message) {
     `;
 }
 
-// Retry last search functionality
 let lastSearchType = null;
 let lastSearchValue = null;
 
@@ -480,38 +410,28 @@ function retryLastSearch() {
     }
 }
 
-// Add city to recent searches
 function addToRecentSearches(city) {
-    // Capitalize first letter of each word
     city = city.split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
     
     let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
-    
-    // Remove if already exists (to move it to the front)
+
     recentSearches = recentSearches.filter(item => item !== city);
-    
-    // Add to the beginning
+
     recentSearches.unshift(city);
-    
-    // Keep only the last 5 searches
+
     recentSearches = recentSearches.slice(0, 5);
-    
-    // Save to localStorage
+
     localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-    
-    // Update UI
+
     displayRecentSearches(recentSearches);
 }
 
-// Load recent searches from localStorage
 function loadRecentSearches() {
     const recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
     displayRecentSearches(recentSearches);
 }
-
-// Display recent searches in the UI
 function displayRecentSearches(searches) {
     if (searches.length === 0) {
         recentSearchesSection.style.display = 'none';
@@ -524,7 +444,6 @@ function displayRecentSearches(searches) {
         item.className = 'recent-item';
         item.innerHTML = `<i class="fas fa-history"></i> ${city}`;
         
-        // Add click event to search for this city
         item.addEventListener('click', () => {
             cityInput.value = city;
             getWeather();
@@ -535,8 +454,6 @@ function displayRecentSearches(searches) {
     
     recentSearchesSection.style.display = 'block';
 }
-
-// Clear all recent searches
 function clearRecentSearches() {
     localStorage.removeItem('recentSearches');
     recentList.innerHTML = '';
