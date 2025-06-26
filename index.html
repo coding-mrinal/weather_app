@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Pulse</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="weather-container">
+        <div class="weather-app">
+            <div class="app-header">
+                <h1>Weather <span>Pulse</span></h1>
+                <div class="theme-toggle">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </div>
+            </div>
+            
+            <div class="search-section">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="cityInput" placeholder="Search for a city...">
+                    <i class="fas fa-times clear-icon" id="clearSearch"></i>
+                </div>
+                <div class="button-group">
+                    <button onclick="getWeather()" class="pulse-btn">
+                        <i class="fas fa-cloud-sun"></i> Get Weather
+                    </button>
+                    <button onclick="getCurrentLocationWeather()" class="location-btn">
+                        <i class="fas fa-location-dot"></i> Current Location
+                    </button>
+                </div>
+            </div>
+            
+            <div id="weatherResult"></div>
+            
+            <div class="recent-searches" id="recentSearches">
+                <h3>Recent Searches</h3>
+                <div class="recent-list" id="recentList"></div>
+            </div>
+        </div>
+        
+        <div class="weather-footer">
+            <p>Created with <i class="fas fa-heart"></i></p>
+        </div>
+    </div>
+    
+    <div class="animated-bg">
+        <div class="weather-particle rain"></div>
+        <div class="weather-particle cloud"></div>
+        <div class="weather-particle sun"></div>
+        <div class="weather-particle snow"></div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
